@@ -1,5 +1,5 @@
 movies = {
-    "M001": {
+    "1": {
         "title": "Inception",
         "genre": "Sci-Fi",
         "duration": 148,
@@ -10,7 +10,7 @@ movies = {
         },
         "price": 12,
     },
-    "M002": {
+    "2": {
         "title": "Interstellar",
         "genre": "Sci-Fi",
         "duration": 169,
@@ -21,7 +21,7 @@ movies = {
         },
         "price": 13,
     },
-    "M003": {
+    "3": {
         "title": "Joker",
         "genre": "Drama",
         "duration": 122,
@@ -41,33 +41,52 @@ users = {
     "Bo": {"password": "bo", "balance": 312.75},
 }
 
-def checkPasswords():
-        pw = input("Please enter your password: ")
-        if pw == users[username]["password"]:
-            print(f"Logged in as {username}")
-            global loginState
-            loginState = True
-        else:
-            print("Incorrect password")
+def searchMovie(title):
+    input("Please enter movie name ")
+    pass
+
+def addmovie(title,genre,duration,seats):
+    for i in movies:
+        titles = movies[i]["title"]
+    if title == titles:
+        print("Movie is already in the libiary")
+    else:
+        pass
+
+def addUser():
+    pass
+
+def function(x):
+    if x == "1":
+        username = input("Username: ")
+        def checkPasswords():
+            pw = input("Please enter your password: ")
+            if pw == users[username]["password"]:
+                print(f"Logged in as {username}")
+            else:
+                print("Incorrect password")
+                checkPasswords()
+        if username == "admin":
+            adminpass = input("Enter password: ")
+            if adminpass == "admin":
+                print("Signed in as admin")
+                admin = True
+            else:
+                print("Wrong password try again.")
+                checkPasswords()
+        elif username in users:
+            print("Valid user")
             checkPasswords()
+        else:
+            print("Invalid user")
+            function("1")
+    elif x == "2":
+        addUser()
+    elif x == "3":
+        title = input("Movie title: ")
+        searchMovie(title)
 
-def attemptLogin():
-    if username == "admin":
-        print("Attempting to sign in as admin")
-    elif username in users:
-        print("Valid user")
-        checkPasswords()
-    else:
-        print("Invalid user")
-        attemptLogin()
 
-def searchMovie(x):
-    if loginState == True:
-        input("Please enter movie name ")
-    else:
-        print("Log in first")
 
-username = input('Username: ')
-attemptLogin()
-searchMovie()
-
+functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\nSelect a function: ")
+function(functionType)
