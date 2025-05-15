@@ -1,3 +1,5 @@
+import easygui
+
 movies = {
     "1": {
         "title": "Inception",
@@ -56,24 +58,40 @@ def addmovie(title,genre,duration,seats):
 def addUser():
     pass
 
+def login():
+        x = [
+        "username",
+        "password",
+        ]
+        msg = "Login"
+        title = "Login page"
+        
+        loginPage = easygui.multpasswordbox(msg,title,x)
+        for i in range(len(x)):
+            while x[i].strip() == "":
+                error = "Please fill the boxes"
+                loginPage = easygui.multpasswordbox(error,title,x)
+        username = loginPage[0]
+        password = loginPage[1]
+        return username, password
 def function(x):
     if x == "1":
-        username = input("Username: ")
+        UNP = login()
+        print(UNP[1])
+        username = UNP[0]
         def checkPasswords():
-            pw = input("Please enter your password: ")
-            if pw == users[username]["password"]:
+            if UNP[1] == users[username]["password"]:
                 print(f"Logged in as {username}")
             else:
                 print("Incorrect password")
-                checkPasswords()
+                function(1)
         if username == "admin":
-            adminpass = input("Enter password: ")
-            if adminpass == "admin":
+            if UNP[1] == "admin":
                 print("Signed in as admin")
-                admin = True
+                adminPerms = True
             else:
                 print("Wrong password try again.")
-                checkPasswords()
+                function(1)
         elif username in users:
             print("Valid user")
             checkPasswords()
@@ -85,8 +103,8 @@ def function(x):
     elif x == "3":
         title = input("Movie title: ")
         searchMovie(title)
+    elif x == "4":
+        addmovie()
 
-
-
-functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\nSelect a function: ")
+functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\n4. Add movies\nSelect a function: ")
 function(functionType)
