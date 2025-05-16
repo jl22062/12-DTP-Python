@@ -56,7 +56,22 @@ def addmovie(title,genre,duration,seats):
         pass
 
 def addUser():
-    pass
+        x = [
+        "username",
+        "password",
+        ]
+        msg = "Sign up"
+        title = "Sign up page"
+        
+        loginPage = easygui.multpasswordbox(msg,title,x)
+        for i in range(len(x)):
+            while x[i].strip() == "":
+                error = "Please fill the boxes"
+                loginPage = easygui.multpasswordbox(error,title,x)
+        username = loginPage[0]
+        password = loginPage[1]
+        users[username] = ""
+        print(users)
 
 def login():
         x = [
@@ -88,7 +103,7 @@ def function(x):
         if username == "admin":
             if UNP[1] == "admin":
                 print("Signed in as admin")
-                adminPerms = True
+                #adminPerms = True
             else:
                 print("Wrong password try again.")
                 function(1)
