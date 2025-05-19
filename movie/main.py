@@ -1,5 +1,4 @@
 import easygui
-
 movies = {
     "1": {
         "title": "Inception",
@@ -44,8 +43,24 @@ users = {
 }
 
 def searchMovie(title):
-    input("Please enter movie name ")
-    pass
+    for movie_number in movies:
+        if title.lower() != movies[movie_number]["title"].lower():
+            print("not a thing")
+        else:
+            movie = title
+            genre = movies[movie_number]["genre"]
+            duration = movies[movie_number]["duration"]
+            seats = movies[movie_number]["seats"]
+            rating = movies[movie_number]["rating"]
+
+            for review_number in movies[movie_number]["reviews"]:
+                reviews_name = movies[movie_number]["reviews"][review_number]["name"]
+                review_rating = movies[movie_number]["reviews"][review_number]["rating"]
+                review_comment = movies[movie_number]["reviews"][review_number]["comment"]
+            print(f'Found results for "{title}"')
+            print(f"{movie}\n{genre}\n{duration}\n{seats}\n{rating}\n---\nReviews\n---\n{reviews_name}: {review_comment}. Rating: {review_rating}")
+            #add easy gui
+
 
 def addmovie(title,genre,duration,seats):
     for i in movies:
@@ -53,7 +68,7 @@ def addmovie(title,genre,duration,seats):
     if title == titles:
         print("Movie is already in the libiary")
     else:
-        pass
+        movies[len(movies)+1] = {"title": title, "genre": genre, "duration": duration,"seats": seats}
 
 def addUser():
         x = [
@@ -70,8 +85,9 @@ def addUser():
                 loginPage = easygui.multpasswordbox(error,title,x)
         username = loginPage[0]
         password = loginPage[1]
-        users[username] = ""
+        users[username] = {"password":password, "balance":"0"}  #flexable efficient, robust
         print(users)
+        startUp()
 
 def login():
         x = [
@@ -90,6 +106,7 @@ def login():
         password = loginPage[1]
         return username, password
 def function(x):
+    adminPerms = False
     if x == "1":
         UNP = login()
         print(UNP[1])
@@ -97,13 +114,15 @@ def function(x):
         def checkPasswords():
             if UNP[1] == users[username]["password"]:
                 print(f"Logged in as {username}")
+                startUp()
             else:
                 print("Incorrect password")
                 function(1)
         if username == "admin":
             if UNP[1] == "admin":
                 print("Signed in as admin")
-                #adminPerms = True
+                adminPerms = True
+                startUp()
             else:
                 print("Wrong password try again.")
                 function(1)
@@ -119,7 +138,21 @@ def function(x):
         title = input("Movie title: ")
         searchMovie(title)
     elif x == "4":
-        addmovie()
+        if adminPerms is True: 
+            print("Adding new movie...")
+            title = input("Movie name: ")
+            genre =input("Movie genre: ")
+            duration =input("Movie duration: ")
+            seats =input("Movie seats: ")
+            addmovie(title, genre,duration,seats)
+            print(movies)
+        else:
+            input("You need to be an admin to use this...")
+            startUp()
 
-functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\n4. Add movies\nSelect a function: ")
-function(functionType)
+def startUp():
+    functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\n4. Add movies\nSelect a function: ")
+    function(functionType)
+
+
+startUp()
