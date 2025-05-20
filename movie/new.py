@@ -1,4 +1,5 @@
 import easygui
+#Lists
 movies = {
     "1": {
         "title": "Inception",
@@ -34,7 +35,6 @@ movies = {
         "price": 12,
     },
 }
- 
 users = {
     "admin": {"password": "admin"},
     "Billy": {"password": "billy", "balance": 1250.50},
@@ -42,6 +42,7 @@ users = {
     "Bo": {"password": "bo", "balance": 312.75},
 }
 
+#Functions
 def searchMovie(title):
     for movie_number in movies:
         if title.lower() != movies[movie_number]["title"].lower():
@@ -87,7 +88,6 @@ def addUser():
         password = loginPage[1]
         users[username] = {"password":password, "balance":"0"}  #flexable efficient, robust
         print(users)
-        startUp()
 
 def login():
         x = [
@@ -105,43 +105,7 @@ def login():
         username = loginPage[0]
         password = loginPage[1]
         return username, password
-def function(x):
-    adminPerms = False
-    if x == "1":
-        UNP = login()
-        print(UNP[1])
-        username = UNP[0]
-        def checkPasswords():
-            if UNP[1] == users[username]["password"]:
-                print(f"Logged in as {username}")
-                startUp()
-            else:
-                print("Incorrect password")
-                function(1)
-        if username == "admin":
-            if UNP[1] == "admin":
-                print("Signed in as admin")
-                adminPerms = True
-                startUp()
-            else:
-                print("Wrong password try again.")
-                function(1)
-        elif username in users:
-            print("Valid user")
-            checkPasswords()
-        else:
-            print("Invalid user")
-            function("1")
-    elif x == "2":
-        addUser()
-    elif x == "3":
-        title = input("Movie title: ")
-        searchMovie(title)
 
-def startUp():
-    adminPerms = False
-    if adminPerms is False:
-        functionType = input("Start menu\n1. Login\n2. Signup\n3. Search movies\nSelect a function: ")
-        function(functionType)
-
-startUp()
+option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices={"Login","SignUp","Search movie"})
+if option == "Login":
+     login()
