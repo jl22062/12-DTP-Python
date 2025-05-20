@@ -47,6 +47,7 @@ def searchMovie(title):
     for movie_number in movies:
         if title.lower() != movies[movie_number]["title"].lower():
             print("not a thing")
+            break
         else:
             movie = title
             genre = movies[movie_number]["genre"]
@@ -58,9 +59,7 @@ def searchMovie(title):
                 reviews_name = movies[movie_number]["reviews"][review_number]["name"]
                 review_rating = movies[movie_number]["reviews"][review_number]["rating"]
                 review_comment = movies[movie_number]["reviews"][review_number]["comment"]
-            print(f'Found results for "{title}"')
-            print(f"{movie}\n{genre}\n{duration}\n{seats}\n{rating}\n---\nReviews\n---\n{reviews_name}: {review_comment}. Rating: {review_rating}")
-            #add easy gui
+            easygui.msgbox(f'Found results for "{title}"\n{movie}\n{genre}\n{duration}\n{seats}\n{rating}\n---\nReviews\n---\n{reviews_name}: {review_comment}. Rating: {review_rating}')
 
 
 def addmovie(title,genre,duration,seats):
@@ -87,25 +86,46 @@ def addUser():
         username = loginPage[0]
         password = loginPage[1]
         users[username] = {"password":password, "balance":"0"}  #flexable efficient, robust
-        print(users)
-
+        startUp()
 def login():
-        x = [
-        "username",
-        "password",
-        ]
-        msg = "Login"
-        title = "Login page"
-        
-        loginPage = easygui.multpasswordbox(msg,title,x)
-        for i in range(len(x)):
-            while x[i].strip() == "":
-                error = "Please fill the boxes"
-                loginPage = easygui.multpasswordbox(error,title,x)
-        username = loginPage[0]
-        password = loginPage[1]
-        return username, password
+        while True:
+            x = ["username", "password"]
+            msg = "Login"
+            title = "Login page"
+            
+            loginPage = easygui.multpasswordbox(msg,title,x)
+            if loginPage is None:
+                print("error")
+            elif loginPage != None:
+                username = loginPage[0]
+                password = loginPage[1]
+                if username in users:
+                    if password == users[username]["password"]:
+                        easygui.msgbox(f"Logged in as {username}")
+                        mainMenu()
+                        break
+                    else:
+                        easygui.msgbox("Incorrect username or password...")
+                        continue
+                
+                else:
+                    easygui.msgbox("Incorrect username or password...")
+                    continue
+            
 
-option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices={"Login","SignUp","Search movie"})
-if option == "Login":
-     login()
+choose = {"Login","SignUp","Search movie"}
+perms = ""
+def startUp():
+    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=choose)
+    if option == "Login":
+        login()
+    elif option == "SignUp":
+        addUser()
+    elif option == "Search movie":
+        title = easygui.enterbox()
+        searchMovie(title)
+
+startUp()
+
+def mainMenu():
+    pass
