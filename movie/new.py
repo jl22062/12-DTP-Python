@@ -46,8 +46,7 @@ users = {
 def searchMovie(title):
     for movie_number in movies:
         if title.lower() != movies[movie_number]["title"].lower():
-            print("not a thing")
-            break
+            pass
         else:
             movie = title
             genre = movies[movie_number]["genre"]
@@ -111,21 +110,40 @@ def login():
                 else:
                     easygui.msgbox("Incorrect username or password...")
                     continue
-            
 
-choose = {"Login","SignUp","Search movie"}
-perms = ""
+def buyTicket(title):
+    for movie_number in movies:
+        if title.lower() != movies[movie_number]["title"].lower():
+            print("not a thing")
+            break
+        else:
+            movie = title
+            seats = movies[movie_number]["seats"]
+            easygui.multchoicebox(msg=f'{movie} has {seats} available.', title='Buying tickets', choices={"Buy one", "Buy two", "Buy five"})
+
+
+
+def mainMenu():
+    menu = {"Search movie","Buy ticket"}
+    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=menu)
+    if option == "Search movie":
+        movie_name = easygui.enterbox()
+        searchMovie(movie_name)
+    elif option == "Buy tickets":
+        buyTicket()
+
 def startUp():
-    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=choose)
+    start = {"Login","SignUp","Search movie"}
+    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=start)
     if option == "Login":
         login()
     elif option == "SignUp":
         addUser()
     elif option == "Search movie":
-        title = easygui.enterbox()
-        searchMovie(title)
+        movie_name = easygui.enterbox()
+        searchMovie(movie_name)
 
 startUp()
 
-def mainMenu():
-    pass
+
+
