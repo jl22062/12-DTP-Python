@@ -1,5 +1,5 @@
 import easygui
-#Lists
+
 movies = {
     "1": {
         "title": "Inception",
@@ -35,6 +35,7 @@ movies = {
         "price": 12,
     },
 }
+
 users = {
     "admin": {"password": "admin"},
     "Billy": {"password": "billy", "balance": 1250.50},
@@ -42,108 +43,175 @@ users = {
     "Bo": {"password": "bo", "balance": 312.75},
 }
 
-#Functions
-def searchMovie(title):
-    for movie_number in movies:
-        if title.lower() != movies[movie_number]["title"].lower():
-            pass
-        else:
-            movie = title
-            genre = movies[movie_number]["genre"]
-            duration = movies[movie_number]["duration"]
-            seats = movies[movie_number]["seats"]
-            rating = movies[movie_number]["rating"]
+current_user = None
 
-            for review_number in movies[movie_number]["reviews"]:
-                reviews_name = movies[movie_number]["reviews"][review_number]["name"]
-                review_rating = movies[movie_number]["reviews"][review_number]["rating"]
-                review_comment = movies[movie_number]["reviews"][review_number]["comment"]
-            easygui.msgbox(f'Found results for "{title}"\n{movie}\n{genre}\n{duration}\n{seats}\n{rating}\n---\nReviews\n---\n{reviews_name}: {review_comment}. Rating: {review_rating}')
+def searchMovie():
+    while True:
+        title = easygui.enterbox("Enter movie title to search:", "Search Movie")
+        if title is None:
+            return
+        title = title.strip()
+        if not title:
+            easygui.msgbox("Please enter a movie title.")
+            continue
+        found = False
+        for movie_number, movie_data in movies.items():
+            if title.lower() == movie_data["title"].lower():
+                found = True
+                reviews_text = ""
+                for rev_num, review in movie_data["reviews"].items():
+                    reviews_text += f'{review["name"]}: {review["comment"]}. Rating: {review["rating"]}\n'
+                easygui.msgbox(
+                    f'Found results for "{title}":\n'
+                    f'Title: {movie_data["title"]}\n'
+                    f'Genre: {movie_data["genre"]}\n'
+                    f'Duration: {movie_data["duration"]} minutes\n'
+                    f'Seats available: {movie_data["seats"]}\n'
+                    f'Rating: {movie_data["rating"]}\n'
+                    f'--- Reviews ---\n{reviews_text}',
+                    "Movie Found"
+                )
+                break
+        if not found:
+            easygui.msgbox(f'The movie "{title}" does not exist. Please check the name and try again.', "Not Found")
+            continue
+        return
 
-
-def addmovie(title,genre,duration,seats):
-    for i in movies:
-        titles = movies[i]["title"]
-    if title == titles:
-        print("Movie is already in the libiary")
-    else:
-        movies[len(movies)+1] = {"title": title, "genre": genre, "duration": duration,"seats": seats}
+def addMovie(title, genre, duration, seats):
+    title = title.strip()
+    for movie_data in movies.values():
+        if movie_data["title"].lower() == title.lower():
+            easygui.msgbox("Movie is already in the library.", "Error")
+            return
+    new_key = str(len(movies) + 1)
+    movies[new_key] = {
+        "title": title,
+        "genre": genre,
+        "duration": duration,
+        "seats": seats,
+        "rating": 0,
+        "reviews": {},
+        "price": 12,
+    }
+    easygui.msgbox(f'Movie "{title}" added successfully!', "Success")
 
 def addUser():
-        x = [
-        "username",
-        "password",
-        ]
+    while True:
+        fields = ["Username", "Password"]
         msg = "Sign up"
         title = "Sign up page"
-        
-        loginPage = easygui.multpasswordbox(msg,title,x)
-        for i in range(len(x)):
-            while x[i].strip() == "":
-                error = "Please fill the boxes"
-                loginPage = easygui.multpasswordbox(error,title,x)
-        username = loginPage[0]
+        loginPage = easygui.multpasswordbox(msg, title, fields)
+        if loginPage is None:
+            return
+        username = loginPage[0].strip()
         password = loginPage[1]
-        users[username] = {"password":password, "balance":"0"}  #flexable efficient, robust
-        startUp()
+        if not username or not password:
+            easygui.msgbox("Please fill in all fields.", "Error")
+            continue
+        if username in users:
+            easygui.msgbox("Username already exists. Choose another username.", "Error")
+            continue
+        users[username] = {"password": password, "balance": 0.0}
+        easygui.msgbox(f"User '{username}' created successfully!", "Success")
+        return
+
 def login():
-        while True:
-            x = ["username", "password"]
-            msg = "Login"
-            title = "Login page"
-            
-            loginPage = easygui.multpasswordbox(msg,title,x)
-            if loginPage is None:
-                print("error")
-            elif loginPage != None:
-                username = loginPage[0]
-                password = loginPage[1]
-                if username in users:
-                    if password == users[username]["password"]:
-                        easygui.msgbox(f"Logged in as {username}")
-                        mainMenu()
-                        break
-                    else:
-                        easygui.msgbox("Incorrect username or password...")
-                        continue
-                
-                else:
-                    easygui.msgbox("Incorrect username or password...")
-                    continue
-
-def buyTicket(title):
-    for movie_number in movies:
-        if title.lower() != movies[movie_number]["title"].lower():
-            print("not a thing")
-            break
+    global current_user
+    attempts = 0
+    while attempts < 3:
+        fields = ["Username", "Password"]
+        msg = "Login"
+        title = "Login page"
+        loginPage = easygui.multpasswordbox(msg, title, fields)
+        if loginPage is None:
+            return
+        username = loginPage[0].strip()
+        password = loginPage[1]
+        if username in users and users[username]["password"] == password:
+            current_user = username
+            easygui.msgbox(f"Logged in as {username}", "Success")
+            return
         else:
-            movie = title
-            seats = movies[movie_number]["seats"]
-            easygui.multchoicebox(msg=f'{movie} has {seats} available.', title='Buying tickets', choices={"Buy one", "Buy two", "Buy five"})
+            easygui.msgbox("Incorrect username or password.", "Error")
+            attempts += 1
+    easygui.msgbox("Too many failed attempts. Returning to startup menu.", "Error")
 
-
+def buyTicket():
+    global current_user
+    if current_user is None:
+        easygui.msgbox("You must be logged in to buy tickets.", "Error")
+        return
+    choices = [movies[m]["title"] for m in movies]
+    movie_title = easygui.choicebox("Select a movie to buy tickets for:", "Buy Ticket", choices)
+    if movie_title is None:
+        return
+    movie_key = None
+    for key, movie_data in movies.items():
+        if movie_data["title"] == movie_title:
+            movie_key = key
+            break
+    if movie_key is None:
+        easygui.msgbox("Selected movie not found.", "Error")
+        return
+    seats_available = movies[movie_key]["seats"]
+    if seats_available <= 0:
+        easygui.msgbox("Sorry, no seats available for this movie.", "Sold Out")
+        return
+    choices = ["1", "2", "5"]
+    ticket_choice = easygui.choicebox(f"{movie_title} has {seats_available} seats available.\nHow many tickets would you like to buy?", "Buy Tickets", choices)
+    if ticket_choice is None:
+        return
+    try:
+        tickets_to_buy = int(ticket_choice)
+    except ValueError:
+        easygui.msgbox("Invalid number of tickets selected.", "Error")
+        return
+    if tickets_to_buy > seats_available:
+        easygui.msgbox(f"Only {seats_available} seats are available. Please choose fewer tickets.", "Error")
+        return
+    price = movies[movie_key]["price"]
+    total_cost = tickets_to_buy * price
+    balance = users[current_user].get("balance", 0)
+    if balance < total_cost:
+        easygui.msgbox(f"Insufficient balance. You need ${total_cost} but have only ${balance}.", "Error")
+        return
+    users[current_user]["balance"] -= total_cost
+    movies[movie_key]["seats"] -= tickets_to_buy
+    easygui.msgbox(f"Successfully purchased {tickets_to_buy} ticket(s) for {movie_title}.\nTotal cost: ${total_cost}\nRemaining balance: ${users[current_user]['balance']:.2f}", "Success")
 
 def mainMenu():
-    menu = {"Search movie","Buy ticket"}
-    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=menu)
-    if option == "Search movie":
-        movie_name = easygui.enterbox()
-        searchMovie(movie_name)
-    elif option == "Buy tickets":
-        buyTicket()
+    while True:
+        options = ["Search movie", "Buy ticket", "Logout", "Exit"]
+        choice = easygui.choicebox("What would you like to do?", "Main Menu", options)
+        if choice == "Search movie":
+            searchMovie()
+        elif choice == "Buy ticket":
+            buyTicket()
+        elif choice == "Logout":
+            global current_user
+            current_user = None
+            easygui.msgbox("You have been logged out.", "Logout")
+            return
+        elif choice == "Exit" or choice is None:
+            exit()
+        else:
+            easygui.msgbox("Invalid option selected.", "Error")
 
 def startUp():
-    start = {"Login","SignUp","Search movie"}
-    option = easygui.choicebox(msg="What can I do for you today?", title="Menu", choices=start)
-    if option == "Login":
-        login()
-    elif option == "SignUp":
-        addUser()
-    elif option == "Search movie":
-        movie_name = easygui.enterbox()
-        searchMovie(movie_name)
+    while True:
+        options = ["Login", "SignUp", "Search movie", "Exit"]
+        option = easygui.choicebox("Welcome! What would you like to do?", "Start Menu", options)
+        if option == "Login":
+            login()
+            if current_user is not None:
+                mainMenu()
+        elif option == "SignUp":
+            addUser()
+        elif option == "Search movie":
+            searchMovie()
+        elif option == "Exit" or option is None:
+            exit()
+        else:
+            easygui.msgbox("Invalid option selected.", "Error")
 
 startUp()
-
-
-
