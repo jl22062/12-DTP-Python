@@ -1,6 +1,8 @@
 import easygui
 
-# List all the current movies as a dictionary
+# ╔═════════════════════════════════════════════════════╗
+# ║                  Dictionaries start                 ║
+# ╚═════════════════════════════════════════════════════╝
 movies = {
     "1": {
         "title": "Inception",
@@ -37,14 +39,21 @@ movies = {
     },
 }
 
-# List all the current users as a dictionary
 users = {
     "admin": {"password": "admin","balance":99999999},
     "Billy": {"password": "billy", "balance": 1250.50},
     "Bobby": {"password": "bobby", "balance": 820.00},
     "Bo": {"password": "bo", "balance": 312.75},
 }
+# ╔═════════════════════════════════════════════════════╗
+# ║                  Dictionaries end                   ║
+# ╚═════════════════════════════════════════════════════╝
 
+# ╔═════════════════════════════════════════════════════╗
+# ║                   Functions start                   ║
+# ╚═════════════════════════════════════════════════════╝
+
+# Used to search for a movie by title, shows info and reviews if found, else tells you it's not real.
 def searchMovie(movies):
     while True:
         title = easygui.enterbox("Enter movie title to search:", "Search Movie")
@@ -62,6 +71,7 @@ def searchMovie(movies):
                 return
         easygui.msgbox(f'The movie "{title}" does not exist.', "Not Found")
 
+# Lets admin add a new movie to the list. Does error checks for bad input or duplicate titles.
 def addMovie(movies):
     fields = ["Title", "Genre", "Duration (minutes)", "Seats Available", "Ticket Price ($)"]
     movie_details = easygui.multenterbox("Enter movie details", "Add Movie", fields)
@@ -101,6 +111,7 @@ def addMovie(movies):
     }
     easygui.msgbox(f'Movie "{title}" added successfully with ticket price ${price:.2f}!', "Success")
 
+# Signs a new user up. Checks if username is already taken, and if fields aren't blank.
 def addUser(users):
     while True:
         info = easygui.multpasswordbox("Sign up", "Create Account", ["Username", "Password"])
@@ -117,6 +128,7 @@ def addUser(users):
         easygui.msgbox(f"User '{username}' created.", "Success")
         return
 
+# Logs the user in. Gives 3 tries to get username and password right.
 def login(users):
     for _ in range(3):
         info = easygui.multpasswordbox("Login", "Login Page", ["Username", "Password"])
@@ -131,6 +143,7 @@ def login(users):
     easygui.msgbox("Too many failed attempts.", "Error")
     return None
 
+# This function is used to buy tickets, it checks ur balance and sees if you can afford it. Also checks if there’s seats left.
 def buyTicket(users, movies, current_user):
     if current_user is None:
         easygui.msgbox("You must be logged in.", "Error")
@@ -163,6 +176,7 @@ def buyTicket(users, movies, current_user):
     movies[movie_key]["seats"] -= tickets
     easygui.msgbox(f"Purchased {tickets} ticket(s) for {movie_title}.\nCost: ${total_cost}\nNew balance: ${users[current_user]['balance']:.2f}", "Success")
 
+# The main menu for normal users. Lets them search for movies, buy tickets, log out, or dip.
 def mainMenu(users, movies, current_user):
     while True:
         options = ["Search movie", "Buy ticket", "Logout", "Exit"]
@@ -177,6 +191,7 @@ def mainMenu(users, movies, current_user):
         elif choice == "Exit" or choice is None:
             exit()
 
+# Admin menu is just like main menu but it can also add movies. Could add more admin powers later.
 def adminMenu(users, movies, current_user):
     while True:
         options = ["Add movie", "Search movie", "Buy ticket", "Logout", "Exit"]
@@ -193,11 +208,13 @@ def adminMenu(users, movies, current_user):
         elif choice == "Exit" or choice is None:
             exit()
 
+# This is where the whole thing starts. User can login, sign up, search movies, or just leave.
 def startUp(users, movies):
     current_user = None
     while True:
         options = ["Login", "SignUp", "Search movie", "Exit"]
         choice = easygui.choicebox("Welcome! What would you like to do?", "Start Menu", options)
+        # Login mode, checks your creds then sends you to the right menu.
         if choice == "Login":
             current_user = login(users)
             if current_user:
@@ -205,11 +222,19 @@ def startUp(users, movies):
                     current_user = adminMenu(users, movies, current_user)
                 else:
                     current_user = mainMenu(users, movies, current_user)
+        # Sign up mode if you're new.
         elif choice == "SignUp":
             addUser(users)
+        # You can search for movies without logging in.
         elif choice == "Search movie":
             searchMovie(movies)
+        # You can bounce anytime with Exit.
         elif choice == "Exit" or choice is None:
             exit()
 
+# ╔═════════════════════════════════════════════════════╗
+# ║                    Function ends                    ║
+# ╚═════════════════════════════════════════════════════╝
+
+# Kicks off the whole app. Passed users and movies so it doesn't rely on global vars because globel var is le bad apparently 🤡
 startUp(users, movies)
