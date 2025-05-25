@@ -1,5 +1,6 @@
 import easygui
 
+# List all the current movies as a dictionary
 movies = {
     "1": {
         "title": "Inception",
@@ -36,6 +37,7 @@ movies = {
     },
 }
 
+# List all the current users as a dictionary
 users = {
     "admin": {"password": "admin"},
     "Billy": {"password": "billy", "balance": 1250.50},
@@ -197,6 +199,38 @@ def mainMenu():
         else:
             easygui.msgbox("Invalid option selected.", "Error")
 
+def adminMenu():
+    while True:
+        options = ["Add movie", "Search movie", "Buy ticket", "Logout", "Exit"]
+        choice = easygui.choicebox("Admin Menu - What would you like to do?", "Admin Menu", options)
+        if choice == "Add movie":
+            fields = ["Title", "Genre", "Duration (minutes)", "Seats Available"]
+            movie_details = easygui.multenterbox("Enter movie details", "Add Movie", fields)
+            if movie_details is None:
+                continue
+            title = movie_details[0]
+            genre = movie_details[1]
+            try:
+                duration = int(movie_details[2])
+                seats = int(movie_details[3])
+            except ValueError:
+                easygui.msgbox("Duration and seats must be numbers.", "Error")
+                continue
+            addMovie(title, genre, duration, seats)
+        elif choice == "Search movie":
+            searchMovie()
+        elif choice == "Buy ticket":
+            buyTicket()
+        elif choice == "Logout":
+            global current_user
+            current_user = None
+            easygui.msgbox("You have been logged out.", "Logout")
+            return
+        elif choice == "Exit" or choice is None:
+            exit()
+        else:
+            easygui.msgbox("Invalid option selected.", "Error")
+
 def startUp():
     while True:
         options = ["Login", "SignUp", "Search movie", "Exit"]
@@ -204,7 +238,10 @@ def startUp():
         if option == "Login":
             login()
             if current_user is not None:
-                mainMenu()
+                if current_user == "admin":
+                    adminMenu()
+                else:
+                    mainMenu()
         elif option == "SignUp":
             addUser()
         elif option == "Search movie":
