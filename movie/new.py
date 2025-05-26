@@ -1,5 +1,5 @@
 import easygui
-
+#I love fancy comments but they are annoying as hell to add so there will only be a few of them for larger blocks of code instead of indvidual lines.
 # ╔═════════════════════════════════════════════════════╗
 # ║                  Dictionaries start                 ║
 # ╚═════════════════════════════════════════════════════╝
@@ -23,6 +23,8 @@ movies = {
         "rating": 4.6,
         "reviews": {
             1: {"name": "Jane", "rating": 4.6, "comment": "Mind-expanding!"},
+            2: {"name": "Chaniru", "rating": 6.9, "comment": "Ts movie is pretty cold..."},
+
         },
         "price": 13,
     },
@@ -71,10 +73,23 @@ def searchMovie(movies):
                 return
         easygui.msgbox(f'The movie "{title}" does not exist.', "Not Found")
 
-# Lets admin add a new movie to the list. Does error checks for bad input or duplicate titles.
-def addMovie(movies):
-    fields = ["Title", "Genre", "Duration (minutes)", "Seats Available", "Ticket Price ($)"]
-    movie_details = easygui.multenterbox("Enter movie details", "Add Movie", fields)
+# Lets admin add a new movie to the list, error checks for bad input or duplicate titles.
+def addMovie(movie_details,movies):
+    """
+    Takes the input from admin menu and add movie ands its associating info to dictionary.
+    
+    Movie detail format (For testing purposes?)
+
+    Title: str = "Your title here"
+
+    Genre: str = "Your genre here"
+
+    Duration: int = "Movie length here (in minutes)"
+
+    Seats available: int = "Seats available here"
+
+    Ticket price: float = "Ticket price here"
+    """
     if movie_details is None:
         return
 
@@ -91,7 +106,7 @@ def addMovie(movies):
         if duration <= 0 or seats < 0 or price <= 0:
             raise ValueError
     except ValueError:
-        easygui.msgbox("Duration, seats, and price must be valid positive numbers.", "Error")
+        easygui.msgbox("Duration and seats must be positive whole number numbers, price must be positive values.", "Error")
         return
 
     for movie in movies.values():
@@ -99,7 +114,7 @@ def addMovie(movies):
             easygui.msgbox("Movie already exists.", "Error")
             return
 
-    new_id = str(len(movies) + 1)
+    new_id = str(len(movies) + 1) #Holy shif I hated this part
     movies[new_id] = {
         "title": title,
         "genre": genre,
@@ -109,9 +124,9 @@ def addMovie(movies):
         "reviews": {},
         "price": price
     }
-    easygui.msgbox(f'Movie "{title}" added successfully with ticket price ${price:.2f}!', "Success")
+    easygui.msgbox(f'Movie "{title}" added successfully with ticket price ${price:.2f}!', "Success") #Rounding the price up cuz why not
 
-# Signs a new user up. Checks if username is already taken, and if fields aren't blank.
+# signup function
 def addUser(users):
     while True:
         info = easygui.multpasswordbox("Sign up", "Create Account", ["Username", "Password"])
@@ -119,7 +134,7 @@ def addUser(users):
             return
         username, password = info[0].strip(), info[1]
         if not username or not password:
-            easygui.msgbox("All fields required.", "Error")
+            easygui.msgbox("Please enter both a username AND a password.", "Error")
             continue
         if username in users:
             easygui.msgbox("Username exists. Try another.", "Error")
@@ -128,7 +143,7 @@ def addUser(users):
         easygui.msgbox(f"User '{username}' created.", "Success")
         return
 
-# Logs the user in. Gives 3 tries to get username and password right.
+# User log in, max 3 attmpt before fail
 def login(users):
     for _ in range(3):
         info = easygui.multpasswordbox("Login", "Login Page", ["Username", "Password"])
@@ -140,10 +155,10 @@ def login(users):
             return username
         else:
             easygui.msgbox("Incorrect login.", "Error")
-    easygui.msgbox("Too many failed attempts.", "Error")
-    return None
+    easygui.msgbox("Too many failed attempts, im gonna self destruct", "Error")
+    exit()
 
-# This function is used to buy tickets, it checks ur balance and sees if you can afford it. Also checks if there’s seats left.
+# Buy ticket, check balance for the user, is they are broke, the buy ticket button will giv error.
 def buyTicket(users, movies, current_user):
     if current_user is None:
         easygui.msgbox("You must be logged in.", "Error")
@@ -176,7 +191,7 @@ def buyTicket(users, movies, current_user):
     movies[movie_key]["seats"] -= tickets
     easygui.msgbox(f"Purchased {tickets} ticket(s) for {movie_title}.\nCost: ${total_cost}\nNew balance: ${users[current_user]['balance']:.2f}", "Success")
 
-# The main menu for normal users. Lets them search for movies, buy tickets, log out, or dip.
+#User menu
 def mainMenu(users, movies, current_user):
     while True:
         options = ["Search movie", "Buy ticket", "Logout", "Exit"]
@@ -191,13 +206,15 @@ def mainMenu(users, movies, current_user):
         elif choice == "Exit" or choice is None:
             exit()
 
-# Admin menu is just like main menu but it can also add movies. Could add more admin powers later.
+#Admin menu
 def adminMenu(users, movies, current_user):
     while True:
         options = ["Add movie", "Search movie", "Buy ticket", "Logout", "Exit"]
         choice = easygui.choicebox("Admin Menu", "Admin Options", options)
         if choice == "Add movie":
-            addMovie(movies)
+            fields = ["Title", "Genre", "Duration (minutes)", "Seats Available", "Ticket Price ($)"]
+            movie_details = easygui.multenterbox("Enter movie details", "Add Movie", fields)
+            addMovie(movie_details, movies)
         elif choice == "Search movie":
             searchMovie(movies)
         elif choice == "Buy ticket":
@@ -208,13 +225,12 @@ def adminMenu(users, movies, current_user):
         elif choice == "Exit" or choice is None:
             exit()
 
-# This is where the whole thing starts. User can login, sign up, search movies, or just leave.
+# Start up menu
 def startUp(users, movies):
     current_user = None
     while True:
         options = ["Login", "SignUp", "Search movie", "Exit"]
         choice = easygui.choicebox("Welcome! What would you like to do?", "Start Menu", options)
-        # Login mode, checks your creds then sends you to the right menu.
         if choice == "Login":
             current_user = login(users)
             if current_user:
@@ -222,13 +238,10 @@ def startUp(users, movies):
                     current_user = adminMenu(users, movies, current_user)
                 else:
                     current_user = mainMenu(users, movies, current_user)
-        # Sign up mode if you're new.
         elif choice == "SignUp":
             addUser(users)
-        # You can search for movies without logging in.
         elif choice == "Search movie":
             searchMovie(movies)
-        # You can bounce anytime with Exit.
         elif choice == "Exit" or choice is None:
             exit()
 
