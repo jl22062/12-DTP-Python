@@ -106,7 +106,6 @@ def login():
         password = loginPage[1]
         return username, password
 def function(x):
-    adminPerms = False
     if x == "1":
         UNP = login()
         print(UNP[1])
